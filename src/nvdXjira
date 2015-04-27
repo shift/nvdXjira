@@ -21,6 +21,7 @@ import sys
 import urllib
 import urllib2
 import xml
+import base64
 
 import xml.etree.ElementTree as ET
 
@@ -435,8 +436,7 @@ class NVDXJIRA(object):
                 continue
 
             print_data = ""
-            tickets = self.getTickets("project=%s%%20AND%%20summary~%s&fields=*all" % \
-                                           (self.config["project"], cve_id), cookie)
+            tickets = self.getTickets("project=%s%%20AND%%20summary~%s&fields=%%2Aall" % (self.config["project"], cve_id), cookie)
 
             if not tickets:
                 labels = [ self.config["tag"] ]
@@ -620,8 +620,10 @@ class NVDXJIRA(object):
 
         url = self.config["url"] + self.config["apiurl"] + "search?jql=%s" % query
         self.verbose("Searching Jira tickets using %s..." % url, 3)
+        base64string = base64.encodestring('%s:%s' % (self.config['username'], self.config['password'])).replace('\n', '')
         headers = { 'Content-Type' : 'application/json',
                     'Accept' : 'application/json',
+                    'Authorization' : "Basic %s" % base64string,
                     'Cookie' : '%s=%s' % (cookie["name"], cookie["value"]) }
 
         try:
@@ -644,6 +646,7 @@ class NVDXJIRA(object):
 
         res = None
         self.verbose("Making Jira %s request to %s..." % (method, url), 2)
+        self.verbose("Cookie: %s" % (cookie), 2)
 
         if data:
             data = json.dumps(data).encode()
@@ -655,8 +658,10 @@ class NVDXJIRA(object):
         if self.config["debug"] and method != "GET":
             sys.stderr.write(data + "\n")
         else:
+            base64string = base64.encodestring('%s:%s' % (self.config['username'], self.config['password'])).replace('\n', '')
             headers = { 'Content-Type' : 'application/json',
                         'Accept' : 'application/json',
+                        'Authorization' : "Basic %s" % base64string,
                         'Cookie' : '%s=%s' % (cookie["name"], cookie["value"]) }
 
             try:
@@ -1023,8 +1028,7 @@ security-team@twitter.com
         if not tickets:
             # Warning: magic number!  We arbitrarily claim that we should not
             # have more than 10K tickets that require attention.
-            tickets = self.getTickets("project=%s%%20AND%%20resolution=Unresolved&maxResults=10000&fields=*all" %
-                                          self.config["project"], cookie)
+            tickets = self.getTickets("project=%s%%20AND%%20resolution=Unresolved&maxResults=10000&fields=%%2Aall" % self.config["project"], cookie)
 
         for jira_data in tickets:
             ticket = jira_data["key"]
