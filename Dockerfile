@@ -11,4 +11,5 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/local/src/nvdXjira \
     && cd \
-    && apt-get purge --yes git make
+    && apt-get purge --yes git make \
+    && mkdir -p /etc/nvdXjira
