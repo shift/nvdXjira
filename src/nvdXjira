@@ -44,7 +44,7 @@ SUPPORTED_ACTIONS = {
 TICKETS = []
 
 DEFAULTS = {
-    "apiurl"           : "/rest/api/latest/",
+    "apiurl"           : "/rest/api/2/",
     "assign-threshold" : 24 * 60 * 60,          # 24h in seconds
     "config"           : "/etc/nvdXjira/config",
     "cve-threshold"    : 8 * 7 * 24 * 60 * 60,  # 8w in seconds
@@ -455,7 +455,7 @@ class NVDXJIRA(object):
 
             for ticket in tickets:
                 self.updateTicket(cve, ticket, cookie)
-                self.linkExistingTickets(ticket["key"], cve_id, cookie)
+                #self.linkExistingTickets(ticket["key"], cve_id, cookie)
 
             if self.config["debug"] and print_data:
                 self.printInfo(cve, print_data)
@@ -716,7 +716,11 @@ class NVDXJIRA(object):
                 data = {
                     "type" : { "name": linkType },
                     "inwardIssue" : { "key" : t["key"] },
-                    "outwardIssue" : { "key" : ticket }
+                    "outwardIssue" : { "key" : ticket },
+                    "comment" : { "body" : t["key"], "visability" : {
+                        "type" : "group",
+                        "value" : "jira-users" }
+                    }
                 }
                 self.jiraRequest(url, data, cookie, "POST")
 
@@ -1039,8 +1043,6 @@ security-team@twitter.com
             self.applyLabelActions(jira_data, cookie)
 
             m = cve_pattern.search(jira_data["fields"]["summary"])
-            if m:
-                self.linkExistingTickets(ticket, m.group("cve_id"), cookie)
 
             updated = jira_data["fields"]["updated"]
 
