@@ -8,6 +8,14 @@ Ticket Tracking system.
 'nvdXjira' reads NVD XML data and cross-references CVEs found in the input
 with a Jira instance.
 
+Docker
+======
+
+```
+cp ../nvdXjira-config config/config
+docker run -v config:/etc/nvdXsync shift/nvdxjira --help
+```
+
 FAQ
 ===
 

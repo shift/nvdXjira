@@ -13,3 +13,5 @@ RUN apt-get update \
     && cd \
     && apt-get purge --yes git make \
     && mkdir -p /etc/nvdXjira
+
+ENTRYPOINT ["/usr/local/bin/nvdXjira"]
